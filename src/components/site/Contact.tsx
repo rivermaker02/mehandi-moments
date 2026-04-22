@@ -216,7 +216,7 @@ export default function Contact() {
                     name="phone"
                     type="tel"
                     required
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 00000 00000"
                     aria-invalid={!!errors.phone}
                     aria-describedby={errors.phone ? "phone-err" : undefined}
                     className={fieldClass("phone")}
