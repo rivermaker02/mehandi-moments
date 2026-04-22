@@ -10,7 +10,7 @@ const SHEET_ID = "1B006_n7aaV-uPqHKOIKnGs5bNrdNgjFMwkZPScNMoMU";
 
 const SHEET_GIDS: Record<Filter, string> = {
   bridal: "0",
-  "baby shower": "123456789", // 🔴 replace with actual gid
+  "baby shower": "1", // 🔴 replace with actual gid
 };
 
 const PAGE_SIZE = 6;
@@ -137,99 +137,98 @@ export default function Gallery() {
   /* ---------------- UI ---------------- */
 
   return (
-    <section className="py-20">
-      {/* FILTERS */}
-      <div className="flex flex-wrap gap-3 justify-center mb-10">
-        {SHEETS.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => handleFilterChange(cat)}
-            className={`px-4 py-2 rounded-full capitalize ${
-              filter === cat
-                ? "bg-black text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+    <section id="gallery" className="py-24 md:py-32 bg-gradient-to-b from-white to-cream relative overflow-hidden" aria-label="Gallery">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        {/* FILTERS */}
+        <div className="flex flex-wrap gap-3 justify-center mb-10">
+          {SHEETS.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleFilterChange(cat)}
+              className={`px-4 py-2 rounded-full capitalize ${filter === cat
+                  ? "bg-black text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-      {/* LOADING */}
-      {loadingMap[filter] && (
-        <p className="text-center text-gray-500">Loading...</p>
-      )}
+        {/* LOADING */}
+        {loadingMap[filter] && (
+          <p className="text-center text-gray-500">Loading...</p>
+        )}
 
-      {/* EMPTY STATE */}
-      {!loadingMap[filter] && visibleItems.length === 0 && (
-        <p className="text-center text-gray-500">No images found</p>
-      )}
+        {/* EMPTY STATE */}
+        {!loadingMap[filter] && visibleItems.length === 0 && (
+          <p className="text-center text-gray-500">No images found</p>
+        )}
 
-      {/* GRID */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visibleItems.map((img, i) => (
-          <img
-            key={img.id}
-            src={img.url}
-            loading="lazy"
-            onClick={() => setLightbox(i)}
-            className="cursor-pointer rounded-lg object-cover aspect-[3/4]"
-          />
-        ))}
-      </div>
+        {/* GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {visibleItems.map((img, i) => (
+            <img
+              key={img.id}
+              src={img.url}
+              loading="lazy"
+              onClick={() => setLightbox(i)}
+              className="cursor-pointer rounded-lg object-cover aspect-[3/4]"
+            />
+          ))}
+        </div>
 
-      {/* SENTINEL */}
-      {hasMore && <div ref={sentinelRef} className="h-10"></div>}
+        {/* SENTINEL */}
+        {hasMore && <div ref={sentinelRef} className="h-10"></div>}
 
-      {/* END MESSAGE */}
-      {!hasMore && visibleItems.length > 0 && (
-        <p className="text-center mt-10 text-gray-500">
-          You've reached the end
-        </p>
-      )}
+        {/* END MESSAGE */}
+        {!hasMore && visibleItems.length > 0 && (
+          <p className="text-center mt-10 text-gray-500">
+            You've reached the end
+          </p>
+        )}
 
-      {/* LIGHTBOX */}
-      {lightbox !== null && visibleItems[lightbox] && (
-        <div
-          className="fixed inset-0 bg-black/90 flex items-center justify-center"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            className="absolute top-5 right-5 text-white"
+        {/* LIGHTBOX */}
+        {lightbox !== null && visibleItems[lightbox] && (
+          <div
+            className="fixed inset-0 bg-black/90 flex items-center justify-center"
             onClick={() => setLightbox(null)}
           >
-            <X size={32} />
-          </button>
+            <button
+              className="absolute top-5 right-5 text-white"
+              onClick={() => setLightbox(null)}
+            >
+              <X size={32} />
+            </button>
 
-          <button
-            className="absolute left-5 text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightbox((i) => (i ? i - 1 : 0));
-            }}
-          >
-            <ChevronLeft size={40} />
-          </button>
+            <button
+              className="absolute left-5 text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightbox((i) => (i ? i - 1 : 0));
+              }}
+            >
+              <ChevronLeft size={40} />
+            </button>
 
-          <img
-            src={visibleItems[lightbox].url}
-            className="max-h-[90vh] rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
+            <img
+              src={visibleItems[lightbox].url}
+              className="max-h-[90vh] rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
 
-          <button
-            className="absolute right-5 text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightbox((i) =>
-                i !== null && i < visibleItems.length - 1 ? i + 1 : i
-              );
-            }}
-          >
-            <ChevronRight size={40} />
-          </button>
-        </div>
-      )}
-    </section>
+            <button
+              className="absolute right-5 text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightbox((i) =>
+                  i !== null && i < visibleItems.length - 1 ? i + 1 : i
+                );
+              }}
+            >
+              <ChevronRight size={40} />
+            </button>
+          </div>
+        )}      </div>    </section>
   );
 }
