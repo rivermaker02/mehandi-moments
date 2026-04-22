@@ -30,16 +30,25 @@ export default function About() {
           <h2 className="font-display text-4xl md:text-5xl text-brown mb-6 leading-tight">
             Where tradition meets <em className="text-terracotta-dark">artistry</em>
           </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-            Hello, I'm the artist behind {SITE.artistName}. For over {SITE.yearsExperience} years, I've
-            been blessed to adorn the hands of brides, families, and friends across {SITE.city} —
-            celebrating life's most cherished moments with henna.
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Hi, I’m the artist behind {SITE.artistName}. My journey didn’t start in art — it started in tech.
+            After spending over 5 years as a Cyber Security Consultant, I chose to turn my lifelong
+            passion for drawing into a full-time profession. Today, I combine technical precision
+            with traditional Indian artistry to create designs that are both structured and expressive.
           </p>
-          <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            Every design I create uses 100% natural, hand-mixed henna paste — no chemicals, no shortcuts.
-            From intricate bridal masterpieces to bold Arabic patterns, each piece is crafted with care,
-            patience, and a deep love for the craft.
+
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            With over {SITE.yearsExperience} years of experience, I specialize in detailed bridal mehndi,
+            miniature figures, and story-driven compositions. My work is backed by intensive,
+            structured training — including a 48-day advanced certification covering everything
+            from foundational techniques to full bridal layouts and intricate figure work.
           </p>
+
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            Whether it’s an intimate celebration or a full bridal canvas, my focus is simple:
+            precision, balance, and designs that don’t just look beautiful — they feel intentional.
+          </p>
+
 
           <div className="flex flex-wrap gap-2.5 mb-10">
             {services.map((s) => (

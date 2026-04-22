@@ -6,8 +6,8 @@ export const SITE = {
   city: "Bangalore",
   state: "Karnataka",
   stateCode: "KA",
-  whatsapp: "+91XXXXXXXXXX", // E.164 format, no spaces
-  whatsappDisplay: "+91 XXXXX XXXXX",
+  whatsapp: "+919620173155", // E.164 format, no spaces
+  whatsappDisplay: "+91 96201 73155",
   instagram: "@geethmehandiarts",
   instagramUrl: "https://instagram.com/geethmehandiarts",
   mapsUrl: "https://maps.google.com/?q=Bangalore",
@@ -25,20 +25,20 @@ export const SITE = {
 
 // Cloudinary — leave as YOUR_CLOUD_NAME to render placeholder gallery
 export const CLOUDINARY = {
-  cloudName: "YOUR_CLOUD_NAME",
+  cloudName: "difw4ia6b",
   folder: "mehandi",
   pageSize: 12,
 };
 
 // Google Sheets ID — leave as YOUR_SHEET_ID to use fallback testimonials
 export const SHEETS = {
-  sheetId: "YOUR_SHEET_ID",
+  sheetId: "1SkiLKY0d1vIMQsjlVAS0l9hCxDbJiYQyK9Iz5vbaNIc",
   sheetName: "Sheet1",
 };
 
 // Formspree endpoint — leave as YOUR_FORM_ID to disable submissions
 export const FORMSPREE = {
-  formId: "YOUR_FORM_ID",
+  formId: "xqewywdd",
 };
 
 export const NAV_SECTIONS = [

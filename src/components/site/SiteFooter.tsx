@@ -50,7 +50,7 @@ export default function SiteFooter() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {SITE.artistName}. All rights reserved. ✦ Crafted with love in {SITE.city}.
+        © {new Date().getFullYear()} {SITE.artistName}. All rights reserved.
       </div>
     </footer>
   );
