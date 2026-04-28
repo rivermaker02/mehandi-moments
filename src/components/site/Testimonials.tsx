@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SHEETS } from "@/lib/site-config";
 
 type Review = {
@@ -104,6 +105,7 @@ function Skeleton() {
 export default function Testimonials() {
   const [reviews, setReviews] = useState<Review[] | null>(null);
   const [activeMobile, setActiveMobile] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -132,12 +134,22 @@ export default function Testimonials() {
 
   // Auto-rotate mobile carousel.
   useEffect(() => {
-    if (!reviews || reviews.length <= 1) return;
+    if (!reviews || reviews.length <= 1 || isPaused) return;
     const t = setInterval(() => {
       setActiveMobile((i) => (i + 1) % reviews.length);
     }, 5000);
     return () => clearInterval(t);
-  }, [reviews]);
+  }, [reviews, isPaused]);
+
+  const handleManualNavigation = (newIndex: number) => {
+    setActiveMobile(newIndex);
+    setIsPaused(true);
+    // Resume auto-rotation after 8 seconds of manual interaction
+    const timer = setTimeout(() => {
+      setIsPaused(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  };
 
   return (
     <section id="testimonials" className="py-24 md:py-32 bg-cream-dark ornament-bg" aria-label="Testimonials">
@@ -168,17 +180,33 @@ export default function Testimonials() {
             {/* Mobile carousel */}
             <div className="md:hidden">
               <Card r={reviews[activeMobile]} delay={0} />
-              <div className="flex justify-center gap-2 mt-6">
-                {reviews.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveMobile(i)}
-                    aria-label={`Show review ${i + 1}`}
-                    className={`h-2 rounded-full transition-all ${
-                      i === activeMobile ? "w-8 bg-terracotta-dark" : "w-2 bg-brown/20"
-                    }`}
-                  />
-                ))}
+              <div className="flex justify-center items-center gap-4 mt-6">
+                <button
+                  onClick={() => handleManualNavigation((activeMobile - 1 + reviews.length) % reviews.length)}
+                  aria-label="Previous review"
+                  className="p-2 rounded-full hover:bg-brown/10 transition-colors"
+                >
+                  <ChevronLeft size={24} className="text-brown" />
+                </button>
+                <div className="flex justify-center gap-2">
+                  {reviews.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleManualNavigation(i)}
+                      aria-label={`Show review ${i + 1}`}
+                      className={`h-2 rounded-full transition-all ${
+                        i === activeMobile ? "w-8 bg-terracotta-dark" : "w-2 bg-brown/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => handleManualNavigation((activeMobile + 1) % reviews.length)}
+                  aria-label="Next review"
+                  className="p-2 rounded-full hover:bg-brown/10 transition-colors"
+                >
+                  <ChevronRight size={24} className="text-brown" />
+                </button>
               </div>
             </div>
           </>

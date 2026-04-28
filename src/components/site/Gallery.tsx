@@ -1,16 +1,22 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* ---------------- CONFIG ---------------- */
 
-const SHEETS = ["bridal", "baby shower"] as const;
+const SHEETS = ["bridal", "baby shower", "engagement", "non-bridal", "payal designs", "our signature designs"] as const;
 type Filter = (typeof SHEETS)[number];
 
 const SHEET_ID = "1B006_n7aaV-uPqHKOIKnGs5bNrdNgjFMwkZPScNMoMU";
 
 const SHEET_GIDS: Record<Filter, string> = {
-  bridal: "0",
-  "baby shower": "1", // 🔴 replace with actual gid
+  "bridal": "0",
+  "baby shower": "1071213222",
+  "engagement": "589894922",
+  "non-bridal": "1004138673",
+  "payal designs": "552544545",
+  "our signature designs": "335488088",
+  // 🔴 replace with actual gid
 };
 
 const PAGE_SIZE = 6;
@@ -109,13 +115,19 @@ export default function Gallery() {
   /* -------- LOAD MORE -------- */
 
   const loadMore = useCallback(() => {
-    if (!hasMore) return;
-
-    setPageMap((prev) => ({
-      ...prev,
-      [filter]: (prev[filter] || 1) + 1,
-    }));
-  }, [filter, hasMore]);
+    setPageMap((prev) => {
+      const newPage = (prev[filter] || 1) + 1;
+      const currentCategoryData = dataMap[filter] || [];
+      // Only increment if there's more data to load
+      if (currentCategoryData.length > newPage * PAGE_SIZE) {
+        return {
+          ...prev,
+          [filter]: newPage,
+        };
+      }
+      return prev;
+    });
+  }, [filter, dataMap]);
 
   /* -------- INTERSECTION OBSERVER -------- */
 
@@ -146,8 +158,8 @@ export default function Gallery() {
               key={cat}
               onClick={() => handleFilterChange(cat)}
               className={`px-4 py-2 rounded-full capitalize ${filter === cat
-                  ? "bg-black text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
+                ? "bg-black text-white"
+                : "bg-gray-200 hover:bg-gray-300"
                 }`}
             >
               {cat}
@@ -156,8 +168,12 @@ export default function Gallery() {
         </div>
 
         {/* LOADING */}
-        {loadingMap[filter] && (
-          <p className="text-center text-gray-500">Loading...</p>
+        {loadingMap[filter] && visibleItems.length === 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <Skeleton key={`skeleton-${i}`} className="w-full aspect-[3/4] rounded-lg" />
+            ))}
+          </div>
         )}
 
         {/* EMPTY STATE */}
@@ -176,13 +192,26 @@ export default function Gallery() {
               className="cursor-pointer rounded-lg object-cover aspect-[3/4]"
             />
           ))}
+          {/* Show skeleton loaders while loading more items */}
+          {loadingMap[filter] && visibleItems.length > 0 && (
+            <>
+              {Array.from({
+                length: Math.min(PAGE_SIZE, currentData.length - visibleItems.length),
+              }).map((_, i) => (
+                <Skeleton
+                  key={`skeleton-loading-${i}`}
+                  className="w-full aspect-[3/4] rounded-lg"
+                />
+              ))}
+            </>
+          )}
         </div>
 
         {/* SENTINEL */}
         {hasMore && <div ref={sentinelRef} className="h-10"></div>}
 
         {/* END MESSAGE */}
-        {!hasMore && visibleItems.length > 0 && (
+        {!hasMore && visibleItems.length > 0 && !loadingMap[filter] && (
           <p className="text-center mt-10 text-gray-500">
             You've reached the end
           </p>

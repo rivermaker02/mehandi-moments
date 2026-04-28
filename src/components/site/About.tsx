@@ -5,7 +5,7 @@ const services = ["Bridal", "Arabic", "Traditional", "Festive", "Home Visits", "
 
 export default function About() {
   return (
-    <section id="about" className="py-24 md:py-32 bg-gradient-to-b from-cream to-cream-dark relative">
+    <section id="about" className="pb-24 md:pb-32 bg-gradient-to-b from-cream to-cream-dark relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div className="relative max-w-md mx-auto lg:mx-0 w-full">
           <div className="absolute -top-6 -left-6 w-full h-full border-2 border-gold rounded-[2rem]" aria-hidden="true" />
