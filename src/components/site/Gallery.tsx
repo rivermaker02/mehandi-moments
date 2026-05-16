@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 /* ---------------- CONFIG ---------------- */
 
-const SHEETS = ["bridal", "baby shower", "engagement", "non-bridal", "payal designs", "our signature designs"] as const;
+const SHEETS = ["our signature designs", "bridal", "baby shower", "engagement", "non-bridal", "payal designs"  ] as const;
 type Filter = (typeof SHEETS)[number];
 
 const SHEET_ID = "1B006_n7aaV-uPqHKOIKnGs5bNrdNgjFMwkZPScNMoMU";
