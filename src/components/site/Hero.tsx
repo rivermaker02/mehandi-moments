@@ -1,4 +1,4 @@
-import heroImg from "@/assets/hero-mehandi.jpg";
+import heroImg from "@/assets/hero-mehandi.jpeg";
 import { SITE } from "@/lib/site-config";
 
 export default function Hero() {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { MessageCircle, MapPin, Instagram, Loader2, Check } from "lucide-react";
+import { MessageCircle, MapPin, Instagram, Loader2, Check, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site-config";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -150,6 +150,19 @@ export default function Contact() {
                   <p className="text-xs uppercase tracking-widest text-gold/70">Instagram</p>
                   <p className="font-sans text-cream group-hover:text-gold-light transition-colors">
                     {SITE.instagram}
+                  </p>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href={SITE.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+                <span className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
+                  <Facebook size={20} className="text-gold-light" />
+                </span>
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-gold/70">Facebook</p>
+                  <p className="font-sans text-cream group-hover:text-gold-light transition-colors">
+                    GeethMehandiArts
                   </p>
                 </div>
               </a>

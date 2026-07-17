@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ---------------- CONFIG ---------------- */
@@ -73,6 +73,7 @@ export default function Gallery() {
   const [pageMap, setPageMap] = useState<Record<string, number>>({});
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [searchTheme, setSearchTheme] = useState("");
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -105,12 +106,34 @@ export default function Gallery() {
 
   /* -------- CURRENT DATA -------- */
 
+  const normalizedSearch = searchTheme.trim().toLowerCase();
+  const matchingThemes = SHEETS.filter((cat) => cat.toLowerCase().includes(normalizedSearch));
+
   const currentData = dataMap[filter] || [];
   const currentPage = pageMap[filter] || 1;
 
   const visibleItems = currentData.slice(0, currentPage * PAGE_SIZE);
 
   const hasMore = currentData.length > currentPage * PAGE_SIZE;
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!normalizedSearch) {
+      setFilter(SHEETS[0]);
+      loadCategory(SHEETS[0]);
+      return;
+    }
+
+    const exactMatch = SHEETS.find((cat) => cat.toLowerCase() === normalizedSearch) as Filter | undefined;
+    const partialMatch = SHEETS.find((cat) => cat.toLowerCase().includes(normalizedSearch)) as Filter | undefined;
+    const matchedTheme = exactMatch || partialMatch;
+
+    if (matchedTheme) {
+      setFilter(matchedTheme);
+      loadCategory(matchedTheme);
+    }
+  };
 
   /* -------- LOAD MORE -------- */
 
@@ -154,20 +177,41 @@ export default function Gallery() {
   return (
     <section id="gallery" className="py-24 md:py-32 bg-gradient-to-b from-white to-cream relative overflow-hidden" aria-label="Gallery">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        {/* SEARCH */}
+        <form onSubmit={handleSearchSubmit} className="mx-auto mb-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-gray-300 bg-white px-4 py-3 shadow-sm">
+          <Search size={18} className="text-gray-500" />
+          <input
+            value={searchTheme}
+            onChange={(e) => setSearchTheme(e.target.value)}
+            placeholder="Search by theme, e.g. bridal"
+            className="w-full border-none bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400"
+          />
+          <button
+            type="submit"
+            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          >
+            Search
+          </button>
+        </form>
+
         {/* FILTERS */}
         <div className="flex flex-wrap gap-3 justify-center mb-10">
-          {SHEETS.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => handleFilterChange(cat)}
-              className={`px-4 py-2 rounded-full capitalize ${filter === cat
-                ? "bg-black text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {matchingThemes.length > 0 ? (
+            matchingThemes.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => handleFilterChange(cat)}
+                className={`px-4 py-2 rounded-full capitalize ${filter === cat
+                  ? "bg-black text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+              >
+                {cat}
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No matching themes found</p>
+          )}
         </div>
 
         {/* LOADING */}

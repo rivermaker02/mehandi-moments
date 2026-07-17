@@ -1,4 +1,4 @@
-import artistImg from "@/assets/artist-portrait.jpg";
+import artistImg from "@/assets/artist-portrait.jpeg";
 import { SITE } from "@/lib/site-config";
 
 const services = ["Bridal", "Arabic", "Traditional", "Festive", "Home Visits", "Group Bookings"];

@@ -1,4 +1,4 @@
-import { Instagram, MessageCircle, MapPin } from "lucide-react";
+import { Instagram, MessageCircle, MapPin, Facebook } from "lucide-react";
 import { SITE, NAV_SECTIONS } from "@/lib/site-config";
 
 export default function SiteFooter() {
@@ -39,6 +39,11 @@ export default function SiteFooter() {
             <li>
               <a href={SITE.instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-brown hover:text-terracotta-dark text-sm">
                 <Instagram size={16} /> {SITE.instagram}
+              </a>
+            </li>
+            <li>
+              <a href={SITE.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-brown hover:text-terracotta-dark text-sm">
+                <Facebook size={16} /> GeethMehandiArts
               </a>
             </li>
             <li>
