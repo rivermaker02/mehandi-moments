@@ -6,8 +6,8 @@ export const SITE = {
   city: "Bangalore",
   state: "Karnataka",
   stateCode: "KA",
-  whatsapp: "+919620173155", // E.164 format, no spaces
-  whatsappDisplay: "+91 96201 73155",
+  whatsapp: "+919513566103", // E.164 format, no spaces
+  whatsappDisplay: "+91 95135 66103",
   instagram: "@geethmehandiarts",
   facebookUrl: "https://www.facebook.com/people/Geetha-Nuggihalli",
   instagramUrl: "https://instagram.com/geethmehandiarts",

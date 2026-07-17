@@ -282,17 +282,19 @@ export default function Gallery() {
               <X size={24} className="sm:w-8 sm:h-8" />
             </button>
 
-            <button
-              type="button"
-              aria-label="Previous gallery image"
-              className="absolute left-3 sm:left-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightbox((i) => (i ? i - 1 : 0));
-              }}
-            >
-              <ChevronLeft size={28} className="sm:w-10 sm:h-10" />
-            </button>
+            {lightbox > 0 && (
+              <button
+                type="button"
+                aria-label="Previous gallery image"
+                className="absolute left-3 sm:left-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightbox((i) => (i ? i - 1 : 0));
+                }}
+              >
+                <ChevronLeft size={28} className="sm:w-10 sm:h-10" />
+              </button>
+            )}
 
             <img
               src={visibleItems[lightbox].url}
@@ -300,19 +302,21 @@ export default function Gallery() {
               onClick={(e) => e.stopPropagation()}
             />
 
-            <button
-              type="button"
-              aria-label="Next gallery image"
-              className="absolute right-3 sm:right-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightbox((i) =>
-                  i !== null && i < visibleItems.length - 1 ? i + 1 : i
-                );
-              }}
-            >
-              <ChevronRight size={28} className="sm:w-10 sm:h-10" />
-            </button>
+            {lightbox < visibleItems.length - 1 && (
+              <button
+                type="button"
+                aria-label="Next gallery image"
+                className="absolute right-3 sm:right-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightbox((i) =>
+                    i !== null && i < visibleItems.length - 1 ? i + 1 : i
+                  );
+                }}
+              >
+                <ChevronRight size={28} className="sm:w-10 sm:h-10" />
+              </button>
+            )}
           </div>
         )}      </div>    </section>
   );
