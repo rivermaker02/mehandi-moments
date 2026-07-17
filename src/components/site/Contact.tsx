@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { MessageCircle, MapPin, Instagram, Loader2, Check } from "lucide-react";
-import { SITE, FORMSPREE } from "@/lib/site-config";
+import { SITE } from "@/lib/site-config";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -44,6 +44,21 @@ export default function Contact() {
     `Hi ${SITE.artistName}, I'd like to enquire about a mehandi booking.`
   )}`;
 
+  const buildWhatsAppLink = (data: z.infer<typeof schema>) => {
+    const message = [
+      `Hi ${SITE.artistName}, I would like to enquire about a booking.`,
+      `Name: ${data.name}`,
+      `Phone: ${data.phone}`,
+      `Occasion: ${data.occasion}`,
+      `Preferred date: ${data.date}`,
+      data.message ? `Message: ${data.message}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    return `https://wa.me/${SITE.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -60,24 +75,16 @@ export default function Contact() {
     }
     setErrors({});
 
-    if (FORMSPREE.formId === "YOUR_FORM_ID") {
-      // Demo mode — simulate success without hitting Formspree.
-      setStatus("loading");
-      setTimeout(() => {
-        setStatus("success");
-        form.reset();
-      }, 800);
-      return;
-    }
-
     setStatus("loading");
+
     try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE.formId}`, {
-        method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
-      });
-      if (!res.ok) throw new Error("submit failed");
+      const whatsappUrl = buildWhatsAppLink(result.data);
+      const newWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+
+      if (!newWindow) {
+        window.location.href = whatsappUrl;
+      }
+
       setStatus("success");
       form.reset();
       document.getElementById("contact-success")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -162,7 +169,7 @@ export default function Contact() {
               </div>
               <h3 className="font-display text-3xl text-brown mb-3">Thank you!</h3>
               <p className="text-muted-foreground mb-6">
-                Your booking request has been received. I'll be in touch within 24 hours.
+                Your booking request has been opened in WhatsApp. I&apos;ll be in touch shortly.
               </p>
               <button
                 type="button"
@@ -285,7 +292,7 @@ export default function Contact() {
                 className="mt-6 w-full px-8 py-4 bg-terracotta-dark text-cream font-sans uppercase tracking-wider text-sm rounded-full hover:bg-brown transition-all shadow-[var(--shadow-warm)] disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 {status === "loading" && <Loader2 size={18} className="animate-spin" />}
-                {status === "loading" ? "Sending…" : "Send Booking Request"}
+                {status === "loading" ? "Opening WhatsApp…" : "Send Booking Request"}
               </button>
 
               {status === "error" && (

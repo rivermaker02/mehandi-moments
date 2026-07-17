@@ -116,15 +116,18 @@ export default function Gallery() {
 
   const loadMore = useCallback(() => {
     setPageMap((prev) => {
-      const newPage = (prev[filter] || 1) + 1;
+      const currentPage = prev[filter] || 1;
+      const nextPage = currentPage + 1;
       const currentCategoryData = dataMap[filter] || [];
-      // Only increment if there's more data to load
-      if (currentCategoryData.length > newPage * PAGE_SIZE) {
+
+      // Only increment while the next page would still reveal unseen items.
+      if (currentPage * PAGE_SIZE < currentCategoryData.length) {
         return {
           ...prev,
-          [filter]: newPage,
+          [filter]: nextPage,
         };
       }
+
       return prev;
     });
   }, [filter, dataMap]);
@@ -220,34 +223,43 @@ export default function Gallery() {
         {/* LIGHTBOX */}
         {lightbox !== null && visibleItems[lightbox] && (
           <div
-            className="fixed inset-0 bg-black/90 flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-3 sm:p-6"
             onClick={() => setLightbox(null)}
           >
             <button
-              className="absolute top-5 right-5 text-white"
-              onClick={() => setLightbox(null)}
+              type="button"
+              aria-label="Close gallery image"
+              className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightbox(null);
+              }}
             >
-              <X size={32} />
+              <X size={24} className="sm:w-8 sm:h-8" />
             </button>
 
             <button
-              className="absolute left-5 text-white"
+              type="button"
+              aria-label="Previous gallery image"
+              className="absolute left-3 sm:left-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
               onClick={(e) => {
                 e.stopPropagation();
                 setLightbox((i) => (i ? i - 1 : 0));
               }}
             >
-              <ChevronLeft size={40} />
+              <ChevronLeft size={28} className="sm:w-10 sm:h-10" />
             </button>
 
             <img
               src={visibleItems[lightbox].url}
-              className="max-h-[90vh] rounded-lg"
+              className="relative z-10 max-h-[90vh] max-w-full rounded-lg object-contain"
               onClick={(e) => e.stopPropagation()}
             />
 
             <button
-              className="absolute right-5 text-white"
+              type="button"
+              aria-label="Next gallery image"
+              className="absolute right-3 sm:right-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
               onClick={(e) => {
                 e.stopPropagation();
                 setLightbox((i) =>
@@ -255,7 +267,7 @@ export default function Gallery() {
                 );
               }}
             >
-              <ChevronRight size={40} />
+              <ChevronRight size={28} className="sm:w-10 sm:h-10" />
             </button>
           </div>
         )}      </div>    </section>

@@ -9,9 +9,10 @@ export const SITE = {
   whatsapp: "+919620173155", // E.164 format, no spaces
   whatsappDisplay: "+91 96201 73155",
   instagram: "@geethmehandiarts",
+  facebookUrl: "https://www.facebook.com/people/Geetha-Nuggihalli",
   instagramUrl: "https://instagram.com/geethmehandiarts",
   mapsUrl: "https://maps.google.com/?q=Bangalore",
-  yearsExperience: 8,
+  yearsExperience: 5,
   totalClients: "500+",
   rating: "4.9",
   email: "hello@geethmehandiarts.com",

@@ -39,7 +39,7 @@ export default function Hero() {
             className="font-sans uppercase tracking-[0.3em] text-sm text-terracotta-dark mb-6 animate-fade-up"
             style={{ animationDelay: "0.1s" }}
           >
-            ✦  Bangalore's Bridal Mehandi Studio  ✦
+            ✦ Your dreams with mehandi creations  ✦
           </p>
           <h1
             className="font-display text-5xl md:text-6xl lg:text-7xl text-brown leading-[1.05] mb-6 animate-fade-up"
