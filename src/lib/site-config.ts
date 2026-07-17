@@ -9,7 +9,7 @@ export const SITE = {
   whatsapp: "+919513566103", // E.164 format, no spaces
   whatsappDisplay: "+91 95135 66103",
   instagram: "@geethmehandiarts",
-  facebookUrl: "https://www.facebook.com/people/Geetha-Nuggihalli",
+  facebookUrl: "https://www.facebook.com/profile.php?id=61582502057647",
   instagramUrl: "https://instagram.com/geethmehandiarts",
   mapsUrl: "https://maps.google.com/?q=Bangalore",
   yearsExperience: 5,
@@ -19,7 +19,12 @@ export const SITE = {
   siteUrl: "https://geethmehandiarts.com",
   tagline: "Bridal & Festive Mehandi Artistry",
   description:
-    "Award-winning bridal and festive mehandi artist in Bangalore. 100% natural henna, 8+ years of experience in Bridal, Arabic, Traditional & Festive designs.",
+    "Award-winning bridal and festive mehandi artist in Bangalore, Karnataka. Specializing in bridal mehndi, Arabic mehndi, traditional designs, and festive henna for weddings and celebrations.",
+  keywords:
+    "bridal mehndi artist Bangalore, bridal mehndi Bangalore, Arabic mehndi artist, wedding mehndi artist, festive mehndi Bangalore, traditional mehndi design",
+  serviceArea: "Bangalore, Karnataka, India",
+  address: "Bangalore, Karnataka, India",
+  openingHours: "Mo-Su 09:00-20:00",
   // Coordinates for JSON-LD (Bangalore default)
   geo: { lat: "12.9716", lng: "77.5946" },
 };

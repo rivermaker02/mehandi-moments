@@ -177,6 +177,18 @@ export default function Gallery() {
   return (
     <section id="gallery" className="py-24 md:py-32 bg-gradient-to-b from-white to-cream relative overflow-hidden" aria-label="Gallery">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <p className="divider-ornament font-sans uppercase tracking-[0.3em] text-xs text-terracotta-dark mb-4 justify-center">
+            Gallery
+          </p>
+          <h2 className="font-display text-4xl md:text-5xl text-brown mb-4 leading-tight">
+            Bridal & festive mehndi designs in Bangalore
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Browse recent bridal, Arabic, traditional, and festive henna artwork created for weddings, engagements, and celebrations.
+          </p>
+        </div>
+
         {/* SEARCH */}
         <form onSubmit={handleSearchSubmit} className="mx-auto mb-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-gray-300 bg-white px-4 py-3 shadow-sm">
           <Search size={18} className="text-gray-500" />

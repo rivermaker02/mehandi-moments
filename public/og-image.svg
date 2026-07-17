@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">GeethMehandiArts bridal and festive mehndi artist in Bangalore</title>
+  <desc id="desc">A decorative social preview card for GeethMehandiArts showcasing ornate mehndi art and wedding styling.</desc>
+  <rect width="1200" height="630" rx="32" fill="#f7efe7"/>
+  <rect x="34" y="34" width="1132" height="562" rx="28" fill="#fffaf3" stroke="#d9b382" stroke-width="3"/>
+  <circle cx="930" cy="192" r="110" fill="#e8c37b" opacity="0.28"/>
+  <circle cx="250" cy="470" r="140" fill="#b65f3c" opacity="0.14"/>
+  <path d="M338 404c42-128 150-182 283-182 126 0 210 64 252 176" fill="none" stroke="#8b5a3b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M320 404c38-94 110-138 215-138 102 0 185 46 237 132" fill="none" stroke="#c98a45" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+  <path d="M420 262c34-35 83-52 132-52 70 0 123 22 163 63" fill="none" stroke="#a95f3b" stroke-width="6" stroke-linecap="round"/>
+  <path d="M410 318c48-24 87-41 136-41 58 0 107 18 155 50" fill="none" stroke="#d3a259" stroke-width="5" stroke-linecap="round"/>
+  <text x="120" y="226" fill="#4f2f1d" font-family="Georgia, serif" font-size="42" letter-spacing="3">GEETHMEHANDIARTS</text>
+  <text x="120" y="292" fill="#4f2f1d" font-family="Georgia, serif" font-size="76" font-weight="700">Bridal & Festive Mehndi</text>
+  <text x="120" y="352" fill="#7f4b2d" font-family="Arial, sans-serif" font-size="32">Mehndi artist in Bangalore, Karnataka</text>
+  <rect x="120" y="388" width="290" height="56" rx="28" fill="#4f2f1d"/>
+  <text x="154" y="426" fill="#fffaf3" font-family="Arial, sans-serif" font-size="26" letter-spacing="2">BOOK YOUR DATE</text>
+</svg>

@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { SITE } from "@/lib/site-config";
 
 function NotFoundComponent() {
   return (
@@ -29,17 +30,34 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: `${SITE.artistName} | ${SITE.tagline}` },
+      { name: "description", content: SITE.description },
+      { name: "author", content: SITE.artistName },
+      { name: "keywords", content: SITE.keywords },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "theme-color", content: "#f7efe7" },
+      { name: "geo.region", content: `IN-${SITE.stateCode}` },
+      { name: "geo.placename", content: SITE.city },
+      { property: "og:title", content: `${SITE.artistName} | ${SITE.tagline}` },
+      { property: "og:description", content: SITE.description },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:url", content: SITE.siteUrl },
+      { property: "og:image", content: `${SITE.siteUrl}/og-image.svg` },
+      { property: "og:site_name", content: SITE.artistName },
+      { property: "og:locale", content: "en_IN" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `${SITE.artistName} | ${SITE.tagline}` },
+      { name: "twitter:description", content: SITE.description },
+      { name: "twitter:image", content: `${SITE.siteUrl}/og-image.svg` },
+      { name: "twitter:site", content: "@geethmehandiarts" },
+      { name: "twitter:creator", content: "@geethmehandiarts" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/favicon.svg" },
+      { rel: "canonical", href: SITE.siteUrl },
+      { rel: "alternate", href: SITE.siteUrl, hreflang: "en" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
