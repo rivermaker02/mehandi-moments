@@ -11,10 +11,10 @@ export const SITE = {
   instagram: "@geethmehandiarts",
   facebookUrl: "https://www.facebook.com/profile.php?id=61582502057647",
   instagramUrl: "https://instagram.com/geethmehandiarts",
-  mapsUrl: "https://maps.google.com/?q=Bangalore",
+  mapsUrl: "https://maps.app.goo.gl/vSR2AY1coTzBbNUr7",
   yearsExperience: 5,
   totalClients: "500+",
-  rating: "4.9",
+  rating: "5.0",
   email: "hello@geethmehandiarts.com",
   siteUrl: "https://geethmehandiarts.com",
   tagline: "Bridal & Festive Mehandi Artistry",
@@ -23,7 +23,7 @@ export const SITE = {
   keywords:
     "bridal mehndi artist Bangalore, bridal mehndi Bangalore, Arabic mehndi artist, wedding mehndi artist, festive mehndi Bangalore, traditional mehndi design",
   serviceArea: "Bangalore, Karnataka, India",
-  address: "Bangalore, Karnataka, India",
+  address: "XF3W+H3 Bengaluru, Karnataka, India",
   openingHours: "Mo-Su 09:00-20:00",
   // Coordinates for JSON-LD (Bangalore default)
   geo: { lat: "12.9716", lng: "77.5946" },
