@@ -58,17 +58,11 @@ const stars = (n: number) => "★★★★★".slice(0, n) + "☆☆☆☆☆".s
 function Card({ r, delay }: { r: Review; delay: number }) {
   return (
     <article
-      className="bg-cream rounded-2xl p-7 shadow-[var(--shadow-soft)] border border-border flex flex-col h-full animate-fade-up"
+      className="bg-cream rounded-2xl p-5 shadow-[var(--shadow-soft)] border border-border flex flex-col h-full animate-fade-up"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="text-gold text-xl tracking-widest mb-4" aria-label={`${r.rating} out of 5 stars`}>
-        {stars(r.rating)}
-      </div>
-      <p className="text-brown leading-relaxed mb-6 flex-1 font-display text-lg italic">
-        "{r.review}"
-      </p>
-      <div className="border-t border-gold/20 pt-4">
-        <p className="font-sans font-medium text-brown">
+      <div className="mb-3 border-b border-gold/20 pb-3">
+        <p className="font-sans font-medium text-brown uppercase">
           {r.link ? (
             <a
               href={r.link}
@@ -86,6 +80,12 @@ function Card({ r, delay }: { r: Review; delay: number }) {
           <p className="text-xs uppercase tracking-widest text-terracotta-dark mt-1">{r.occasion}</p>
         )}
       </div>
+      <div className="text-gold text-xl tracking-widest mb-4" aria-label={`${r.rating} out of 5 stars`}>
+        {stars(r.rating)}
+      </div>
+      <p className="text-brown leading-relaxed mb-6 flex-1 font-display text-lg italic">
+        "{r.review}"
+      </p>
     </article>
   );
 }
