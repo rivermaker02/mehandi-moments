@@ -198,25 +198,37 @@ def scrape(known_ids: set[str], full_scan: bool) -> list[Review]:
         except Exception:
             print("warn: could not switch sort to Newest; continuing with default order")
 
-        feed = page.query_selector("div[role='feed']") or page.query_selector(
-            "div.m6QErb.DxyBCb.kA9KIf.dS8AEf"
-        )
         max_scrolls = MAX_SCROLLS_FULL if full_scan else MAX_SCROLLS_INCREMENTAL
-        last_count = -1
-        for _ in range(max_scrolls):
-            reviews = extract_reviews(page)
-            if not full_scan and any(r.review_id in known_ids for r in reviews):
+        last_count, stalls = -1, 0
+        for n in range(max_scrolls):
+            count = page.locator(SEL_REVIEW).count()
+            if not full_scan and any(
+                (page.locator(SEL_REVIEW).nth(i).get_attribute("data-review-id") or "") in known_ids
+                for i in range(count)
+            ):
                 break  # reached reviews we already have
-            if len(reviews) == last_count:
-                break  # no more loading
-            last_count = len(reviews)
-            if feed:
-                feed.evaluate("el => el.scrollTo(0, el.scrollHeight)")
+            if count == last_count:
+                stalls += 1
+                if stalls >= 4:  # nothing new after several tries: end of list
+                    break
             else:
-                page.mouse.wheel(0, 4000)
-            page.wait_for_timeout(1800)
+                stalls = 0
+            last_count = count
+            print(f"info: scroll {n + 1}: {count} review cards loaded")
+            # Scroll the last card into view; that triggers loading the next batch no
+            # matter what the scrollable panel is called.
+            last = page.locator(SEL_REVIEW).last
+            try:
+                last.scroll_into_view_if_needed(timeout=5000)
+                last.hover(timeout=2000)
+                page.mouse.wheel(0, 3000)  # wheel over the panel (mouse is now on it)
+            except Exception:
+                pass
+            page.wait_for_timeout(2500 if stalls else 1800)
 
         reviews = extract_reviews(page)
+        os.makedirs("debug", exist_ok=True)
+        page.screenshot(path="debug/after-scroll.png")
         browser.close()
         return reviews
 

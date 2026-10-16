@@ -43,7 +43,7 @@ jobs:
         run: python scripts/sync_reviews.py
 
       - name: Upload debug screenshot
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: maps-debug
