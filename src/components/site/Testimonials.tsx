@@ -39,7 +39,7 @@ function parseSheetsResponse(text: string): Review[] {
   const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?/);
   if (!match) throw new Error("Unexpected response format");
   const json = JSON.parse(match[1]);
-  const rows: Array<{ c: Array<{ v: string | number | null } | null> }> = json.table.rows ?? [];
+  const rows: Array<{ c: Array<{ v: string | number | boolean | null } | null> }> = json.table.rows ?? [];
   return rows
     .map((row) => {
       const c = row.c;
@@ -47,10 +47,16 @@ function parseSheetsResponse(text: string): Review[] {
       const rating = Number(c[1]?.v ?? 5);
       const review = c[2]?.v?.toString() ?? "";
       const occasion = c[3]?.v?.toString() ?? "";
-      const link = c[4]?.v?.toString();
-      return { name, rating: Math.max(1, Math.min(5, rating)), review, occasion, link };
+      const rawLink = c[4]?.v?.toString().trim();
+      // Column E must be a page link (e.g. the review URL). Profile-photo URLs are not links.
+      const link = rawLink && !/googleusercontent\.com/.test(rawLink) ? rawLink : undefined;
+      // Column G: anything truthy ("yes", TRUE, "x") hides the row from the site.
+      const hiddenVal = c[6]?.v;
+      const hidden = hiddenVal === true || /^(y|yes|true|x|1)$/i.test(String(hiddenVal ?? "").trim());
+      return { name, rating: Math.max(1, Math.min(5, rating)), review, occasion, link, hidden };
     })
-    .filter((r) => r.name && r.review);
+    // Drop hidden rows, empty reviews, and scraped text cut off with "…More".
+    .filter((r) => !r.hidden && r.name && r.review && !/…\s*More\s*$/.test(r.review));
 }
 
 const stars = (n: number) => "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(n);
