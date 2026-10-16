@@ -33,12 +33,24 @@ import re
 import sys
 from dataclasses import dataclass
 
-MAPS_URL = os.environ.get(
-    "MAPS_URL",
-    "https://www.google.com/maps/place/Geeth+Mehandi+Arts/"
-    "@12.9539596,77.4952431,17z/data=!4m8!3m7!1s0x3bae3fa13894700b:0x860ea362dc78b97a"
-    "!8m2!3d12.9539596!4d77.4952431!9m1!1b1",
-)
+# Tried in order until the business panel loads. Don't hand-edit the `data=` part of a Maps
+# URL: its `!4m8!3m7` counters must match the fields that follow, or Google drops the place.
+PLACE_NAME = "Geeth Mehandi Arts"
+MAPS_URLS = [
+    u
+    for u in [
+        os.environ.get("MAPS_URL"),
+        # Share link from the Maps "Share" button; redirects to the current place URL.
+        "https://maps.app.goo.gl/6N7saYVfy3Y5ypYK9",
+        # Exact URL copied from the browser (reviews view).
+        "https://www.google.com/maps/place/Geeth+Mehandi+Arts/@12.9539648,77.4926682,17z/"
+        "data=!3m1!5s0x3bae3e98f7e91a63:0x457424557f41f3e4!4m8!3m7!1s0x3bae3fa13894700b:"
+        "0x860ea362dc78b97a!8m2!3d12.9539596!4d77.4952431!9m1!1b1!16s%2Fg%2F11lv53hfkj",
+        # Stable fallback: the listing's CID (decimal of 0x860ea362dc78b97a).
+        "https://www.google.com/maps?cid=9659837895757314426",
+    ]
+    if u
+]
 HEADERS = ["name", "rating", "review", "occasion", "link", "review_id", "hidden", "review_date"]
 C_NAME, C_RATING, C_REVIEW, C_OCC, C_LINK, C_ID, C_HIDDEN, C_DATE = range(8)
 TRUNCATED = re.compile(r"…\s*More\s*$")
@@ -143,22 +155,30 @@ def scrape(known_ids: set[str], full_scan: bool) -> list[Review]:
             extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
         )
         page = ctx.new_page()
-        url = MAPS_URL + ("&hl=en" if "?" in MAPS_URL else "?hl=en")
-        page.goto(url, wait_until="domcontentloaded", timeout=60_000)
-        try:
-            page.wait_for_load_state("networkidle", timeout=15_000)
-        except Exception:
-            pass
-
-        # Cookie consent (shown in some regions; also a full-page "Before you continue").
-        for label in ("Accept all", "Reject all"):
-            btn = page.query_selector(f"button[aria-label='{label}']") or page.query_selector(
-                f"button:has-text('{label}')"
-            )
-            if btn:
-                btn.click()
-                page.wait_for_load_state("domcontentloaded")
+        place_header = page.locator("h1", has_text=re.compile(re.escape(PLACE_NAME), re.I))
+        for url in MAPS_URLS:
+            if "google.com" in url:  # leave short share links untouched; they redirect
+                url += ("&" if "?" in url else "?") + "hl=en"
+            print("info: opening", url)
+            page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+            # Cookie consent (shown in some regions; also a full-page "Before you continue").
+            for label in ("Accept all", "Reject all"):
+                btn = page.query_selector(f"button[aria-label='{label}']") or page.query_selector(
+                    f"button:has-text('{label}')"
+                )
+                if btn:
+                    btn.click()
+                    page.wait_for_load_state("domcontentloaded")
+                    break
+            try:
+                place_header.first.wait_for(timeout=20_000)
+                print("info: business panel loaded")
                 break
+            except Exception:
+                print("warn: business panel did not load from this URL; landed on", page.url)
+        else:
+            dump_debug(page)
+            raise RuntimeError(f"Could not open the '{PLACE_NAME}' listing from any URL")
 
         try:
             # Open the Reviews tab if the URL didn't already.
