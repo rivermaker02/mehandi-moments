@@ -41,3 +41,11 @@ jobs:
           FULL_SCAN: ${{ inputs.full_scan && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: python scripts/sync_reviews.py
+
+      - name: Upload debug screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maps-debug
+          path: debug/
+          if-no-files-found: ignore

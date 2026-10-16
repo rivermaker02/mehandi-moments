@@ -103,29 +103,72 @@ def clean_text(s: str) -> str:
     return (m.group(1) if m else s).strip()
 
 
+def dump_debug(page) -> None:
+    """Save what the browser actually saw, so failures can be diagnosed from the run's artifacts."""
+    os.makedirs("debug", exist_ok=True)
+    try:
+        print("debug: page title =", repr(page.title()))
+        print("debug: page url   =", page.url)
+        tabs = page.eval_on_selector_all(
+            "button[role='tab']", "els => els.map(e => e.getAttribute('aria-label') || e.innerText)"
+        )
+        print("debug: tabs       =", tabs)
+        body = page.inner_text("body")[:1500].replace("\n", " | ")
+        print("debug: body text  =", body)
+        page.screenshot(path="debug/page.png", full_page=True)
+        with open("debug/page.html", "w", encoding="utf-8") as f:
+            f.write(page.content())
+        print("debug: saved debug/page.png and debug/page.html (see the run's Artifacts)")
+    except Exception as e:  # never let debugging hide the real error
+        print("debug: failed to capture page:", e)
+
+
 def scrape(known_ids: set[str], full_scan: bool) -> list[Review]:
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        ctx = browser.new_context(locale="en-US", viewport={"width": 1280, "height": 1800})
+        browser = p.chromium.launch(
+            headless=True, args=["--disable-blink-features=AutomationControlled"]
+        )
+        # Headless Chromium's default user agent says "HeadlessChrome", which Google
+        # serves a degraded page to. Present as a normal desktop Chrome instead.
+        ctx = browser.new_context(
+            locale="en-US",
+            timezone_id="Asia/Kolkata",
+            viewport={"width": 1280, "height": 1800},
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+            ),
+            extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
+        )
         page = ctx.new_page()
         url = MAPS_URL + ("&hl=en" if "?" in MAPS_URL else "?hl=en")
         page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+        try:
+            page.wait_for_load_state("networkidle", timeout=15_000)
+        except Exception:
+            pass
 
-        # Cookie consent (shown in some regions).
+        # Cookie consent (shown in some regions; also a full-page "Before you continue").
         for label in ("Accept all", "Reject all"):
-            btn = page.query_selector(f"button[aria-label='{label}']")
+            btn = page.query_selector(f"button[aria-label='{label}']") or page.query_selector(
+                f"button:has-text('{label}')"
+            )
             if btn:
                 btn.click()
                 page.wait_for_load_state("domcontentloaded")
                 break
 
-        # Open the Reviews tab if the URL didn't already.
-        tab = page.query_selector("button[role='tab'][aria-label*='Reviews' i]")
-        if tab:
-            tab.click()
-        page.wait_for_selector(SEL_REVIEW, timeout=30_000)
+        try:
+            # Open the Reviews tab if the URL didn't already.
+            tab = page.get_by_role("tab", name=re.compile(r"Reviews", re.I))
+            if tab.count():
+                tab.first.click()
+            page.wait_for_selector(SEL_REVIEW, timeout=30_000)
+        except Exception:
+            dump_debug(page)
+            raise
 
         # Sort by newest so incremental runs only need the top of the list.
         try:
