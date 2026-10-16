@@ -32,7 +32,10 @@ function Stat({
 
 export default function StatsStrip() {
   return (
-    <section className="bg-brown py-14 md:py-16 relative overflow-hidden" aria-label="By the numbers">
+    <section
+      className="bg-brown py-14 md:py-16 relative overflow-hidden"
+      aria-label="By the numbers"
+    >
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-10"
@@ -45,7 +48,7 @@ export default function StatsStrip() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-cream/15">
         <Stat value={500} suffix="+" label="Happy Clients" />
         <Stat value={SITE.yearsExperience} suffix="+ yrs" label="Experience" />
-        <Stat value={0} isNumeric={false} staticValue="4.9★" label="Google Rating" />
+        <Stat value={0} isNumeric={false} staticValue={`${SITE.rating}★`} label="Google Rating" />
         <Stat value={100} suffix="%" label="Natural Henna" />
       </div>
     </section>

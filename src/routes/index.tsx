@@ -19,7 +19,7 @@ const jsonLd = [
     telephone: SITE.whatsapp,
     email: SITE.email,
     url: SITE.siteUrl,
-    image: `${SITE.siteUrl}/og-image.svg`,
+    image: `${SITE.siteUrl}/og-image.jpg`,
     priceRange: "₹₹",
     openingHours: SITE.openingHours,
     areaServed: {
@@ -77,11 +77,11 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: SITE.description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE.siteUrl },
-      { property: "og:image", content: `${SITE.siteUrl}/og-image.svg` },
+      { property: "og:image", content: `${SITE.siteUrl}/og-image.jpg` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: `${SITE.artistName} | Bridal & Festive Mehndi Artist in ${SITE.city}` },
       { name: "twitter:description", content: SITE.description },
-      { name: "twitter:image", content: `${SITE.siteUrl}/og-image.svg` },
+      { name: "twitter:image", content: `${SITE.siteUrl}/og-image.jpg` },
     ],
     links: [{ rel: "canonical", href: SITE.siteUrl }],
     scripts: jsonLd.map((schema) => ({

@@ -85,7 +85,7 @@ export default function Hero() {
             <img
               src={heroImg}
               alt="Intricate bridal mehandi henna design with paisley and floral patterns on bride's hand"
-              width={1600}
+              width={900}
               height={1200}
               className="relative w-full h-full object-cover rounded-[2rem] shadow-[var(--shadow-warm)]"
               fetchPriority="high"

@@ -12,7 +12,7 @@ export default function About() {
           <img
             src={artistImg}
             alt={`${SITE.artistName}, professional mehandi artist applying henna design`}
-            width={1000}
+            width={1600}
             height={1200}
             loading="lazy"
             className="relative aspect-[5/6] w-full object-cover rounded-[2rem] shadow-[var(--shadow-warm)]"

@@ -14,7 +14,7 @@ export const SITE = {
   mapsUrl: "https://maps.app.goo.gl/vSR2AY1coTzBbNUr7",
   yearsExperience: 5,
   totalClients: "500+",
-  rating: "5.0",
+  rating: "5.0", // Google Maps rating, shown in the stats strip — copy it exactly from the listing
   email: "hello@geethmehandiarts.com",
   siteUrl: "https://geethmehandiarts.com",
   tagline: "Bridal & Festive Mehandi Artistry",
@@ -25,8 +25,8 @@ export const SITE = {
   serviceArea: "Bangalore, Karnataka, India",
   address: "XF3W+H3 Bengaluru, Karnataka, India",
   openingHours: "Mo-Su 09:00-20:00",
-  // Coordinates for JSON-LD (Bangalore default)
-  geo: { lat: "12.9716", lng: "77.5946" },
+  // Studio coordinates for search engines (from the Google Maps listing)
+  geo: { lat: "12.9539596", lng: "77.4952431" },
 };
 
 // Cloudinary — leave as YOUR_CLOUD_NAME to render placeholder gallery

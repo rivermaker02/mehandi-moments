@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { MessageCircle, MapPin, Instagram, Loader2, Check, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site-config";
 
-const today = new Date().toISOString().slice(0, 10);
+// Today's date in the visitor's own timezone (YYYY-MM-DD). Computed when called, not once
+// at module load: on the server that would be UTC and could go stale for days.
+const localToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 
 const schema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(80),
@@ -17,7 +22,7 @@ const schema = z.object({
   date: z
     .string()
     .min(1, "Please pick a date")
-    .refine((d) => d >= today, "Date can't be in the past"),
+    .refine((d) => d >= localToday(), "Date can't be in the past"),
   message: z.string().trim().max(800).optional().or(z.literal("")),
   // honeypot — must remain empty
   website: z.string().max(0, "Spam detected").optional().or(z.literal("")),
@@ -39,9 +44,12 @@ const occasions = [
 export default function Contact() {
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
+  // Set after hydration so the server-rendered HTML and the browser agree.
+  const [minDate, setMinDate] = useState<string | undefined>(undefined);
+  useEffect(() => setMinDate(localToday()), []);
 
   const waLink = `https://wa.me/${SITE.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
-    `Hi ${SITE.artistName}, I'd like to enquire about a mehandi booking.`
+    `Hi ${SITE.artistName}, I'd like to enquire about a mehandi booking.`,
   )}`;
 
   const buildWhatsAppLink = (data: z.infer<typeof schema>) => {
@@ -79,15 +87,21 @@ export default function Contact() {
 
     try {
       const whatsappUrl = buildWhatsAppLink(result.data);
-      const newWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-
-      if (!newWindow) {
+      // Note: passing "noopener" makes window.open always return null, which used to
+      // trigger the fallback below and navigate this tab away too. Open, then cut the link.
+      const newWindow = window.open(whatsappUrl, "_blank");
+      if (newWindow) {
+        newWindow.opener = null;
+      } else {
+        // Popup blocked: fall back to opening WhatsApp in this tab.
         window.location.href = whatsappUrl;
       }
 
       setStatus("success");
       form.reset();
-      document.getElementById("contact-success")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document
+        .getElementById("contact-success")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch {
       setStatus("error");
     }
@@ -100,23 +114,34 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-brown text-cream relative overflow-hidden">
-      <span aria-hidden="true" className="absolute top-10 right-10 text-8xl text-gold/10">✦</span>
-      <span aria-hidden="true" className="absolute bottom-10 left-10 text-8xl text-gold/10">❋</span>
+      <span aria-hidden="true" className="absolute top-10 right-10 text-8xl text-gold/10">
+        ✦
+      </span>
+      <span aria-hidden="true" className="absolute bottom-10 left-10 text-8xl text-gold/10">
+        ❋
+      </span>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-16 relative">
         <div>
-          <p className="font-sans uppercase tracking-[0.3em] text-xs text-gold mb-4">Let's Create Together</p>
+          <p className="font-sans uppercase tracking-[0.3em] text-xs text-gold mb-4">
+            Let's Create Together
+          </p>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
             Reserve your <em className="text-gold-light">date</em>
           </h2>
           <p className="text-cream/80 text-lg leading-relaxed mb-10">
-            Bridal dates fill quickly during the wedding season — get in touch early to secure your slot.
-            For urgent bookings, message me on WhatsApp.
+            Bridal dates fill quickly during the wedding season — get in touch early to secure your
+            slot. For urgent bookings, message me on WhatsApp.
           </p>
 
           <ul className="space-y-5">
             <li>
-              <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group"
+              >
                 <span className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
                   <MessageCircle size={20} className="text-gold-light" />
                 </span>
@@ -129,7 +154,12 @@ export default function Contact() {
               </a>
             </li>
             <li>
-              <a href={SITE.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+              <a
+                href={SITE.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group"
+              >
                 <span className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
                   <MapPin size={20} className="text-gold-light" />
                 </span>
@@ -142,7 +172,12 @@ export default function Contact() {
               </a>
             </li>
             <li>
-              <a href={SITE.instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+              <a
+                href={SITE.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group"
+              >
                 <span className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
                   <Instagram size={20} className="text-gold-light" />
                 </span>
@@ -155,7 +190,12 @@ export default function Contact() {
               </a>
             </li>
             <li>
-              <a href={SITE.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+              <a
+                href={SITE.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group"
+              >
                 <span className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
                   <Facebook size={20} className="text-gold-light" />
                 </span>
@@ -208,7 +248,10 @@ export default function Contact() {
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-sans uppercase tracking-wider mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-sans uppercase tracking-wider mb-2"
+                  >
                     Name
                   </label>
                   <input
@@ -228,7 +271,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-sans uppercase tracking-wider mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-sans uppercase tracking-wider mb-2"
+                  >
                     Phone / WhatsApp
                   </label>
                   <input
@@ -250,7 +296,10 @@ export default function Contact() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="occasion" className="block text-sm font-sans uppercase tracking-wider mb-2">
+                    <label
+                      htmlFor="occasion"
+                      className="block text-sm font-sans uppercase tracking-wider mb-2"
+                    >
                       Occasion
                     </label>
                     <select
@@ -261,15 +310,24 @@ export default function Contact() {
                       aria-invalid={!!errors.occasion}
                       className={fieldClass("occasion")}
                     >
-                      <option value="" disabled>Select…</option>
+                      <option value="" disabled>
+                        Select…
+                      </option>
                       {occasions.map((o) => (
-                        <option key={o} value={o}>{o}</option>
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
                       ))}
                     </select>
-                    {errors.occasion && <p className="text-destructive text-sm mt-1">{errors.occasion}</p>}
+                    {errors.occasion && (
+                      <p className="text-destructive text-sm mt-1">{errors.occasion}</p>
+                    )}
                   </div>
                   <div>
-                    <label htmlFor="date" className="block text-sm font-sans uppercase tracking-wider mb-2">
+                    <label
+                      htmlFor="date"
+                      className="block text-sm font-sans uppercase tracking-wider mb-2"
+                    >
                       Date
                     </label>
                     <input
@@ -277,7 +335,7 @@ export default function Contact() {
                       name="date"
                       type="date"
                       required
-                      min={today}
+                      min={minDate}
                       aria-invalid={!!errors.date}
                       className={fieldClass("date")}
                     />
@@ -286,8 +344,12 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-sans uppercase tracking-wider mb-2">
-                    Message <span className="text-muted-foreground normal-case text-xs">(optional)</span>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-sans uppercase tracking-wider mb-2"
+                  >
+                    Message{" "}
+                    <span className="text-muted-foreground normal-case text-xs">(optional)</span>
                   </label>
                   <textarea
                     id="message"
@@ -311,7 +373,12 @@ export default function Contact() {
               {status === "error" && (
                 <p className="mt-4 text-destructive text-sm text-center">
                   Couldn't send. Please{" "}
-                  <a href={waLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                  <a
+                    href={waLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-medium"
+                  >
                     message on WhatsApp
                   </a>{" "}
                   instead.

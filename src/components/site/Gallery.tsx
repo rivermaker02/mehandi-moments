@@ -1,18 +1,26 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SITE } from "@/lib/site-config";
 
 /* ---------------- CONFIG ---------------- */
 
-const SHEETS = ["our signature designs", "bridal", "baby shower", "engagement", "non-bridal", "payal designs"  ] as const;
+const SHEETS = [
+  "our signature designs",
+  "bridal",
+  "baby shower",
+  "engagement",
+  "non-bridal",
+  "payal designs",
+] as const;
 type Filter = (typeof SHEETS)[number];
 
 const SHEET_ID = "1B006_n7aaV-uPqHKOIKnGs5bNrdNgjFMwkZPScNMoMU";
 
 const SHEET_GIDS: Record<Filter, string> = {
-  "bridal": "0",
+  bridal: "0",
   "baby shower": "1071213222",
-  "engagement": "589894922",
+  engagement: "589894922",
   "non-bridal": "1004138673",
   "payal designs": "552544545",
   "our signature designs": "335488088",
@@ -31,13 +39,46 @@ type GalleryImage = {
 
 /* ---------------- CSV PARSER ---------------- */
 
+// Reads the first column of each row. Handles quoted cells ("...,...") and Windows line
+// endings, so a URL containing a comma (e.g. Cloudinary's w_600,q_auto) can't break it.
 function parseCSV(text: string): string[] {
   return text
-    .split("\n")
+    .split(/\r?\n/)
     .slice(1) // remove header
-    .map((row) => row.split(",")[0]?.trim())
-    .filter(Boolean);
+    .map((row) => {
+      const m = row.match(/^\s*"((?:[^"]|"")*)"|^([^,]*)/);
+      return (m?.[1] !== undefined ? m[1].replace(/""/g, '"') : (m?.[2] ?? "")).trim();
+    })
+    .filter((url) => /^https?:\/\//i.test(url));
 }
+
+/* ---------------- IMAGE SIZING ---------------- */
+
+// Cloudinary resizes on the fly: insert a transformation after "/upload/" so the browser
+// gets a right-sized, modern-format image instead of the full-resolution original.
+// URLs from any other host, or that already carry a transformation, are left unchanged.
+function sized(url: string, width: number): string {
+  const m = url.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(.*)$/);
+  if (!m) return url;
+  const rest = m[2];
+  if (!/^v\d+\//.test(rest) && rest.includes("/")) return url; // already transformed
+  return `${m[1]}f_auto,q_auto,c_limit,w_${width}/${rest}`;
+}
+
+// If a resized URL ever fails (e.g. Cloudinary "strict transformations" turned on),
+// fall back to the original image once, so the gallery is never worse than before.
+const fallBackToOriginal = (original: string) => (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const img = e.currentTarget;
+  if (img.dataset.fallback) return;
+  img.dataset.fallback = "1";
+  img.src = original;
+};
+
+const altFor = (category: string, n: number) => {
+  const label = `${category.charAt(0).toUpperCase()}${category.slice(1)}`;
+  const what = /design/i.test(category) ? label : `${label} mehndi design`;
+  return `${what} by ${SITE.artistName} (${n})`;
+};
 
 /* ---------------- FETCH ---------------- */
 
@@ -46,7 +87,7 @@ async function fetchSheet(category: Filter): Promise<GalleryImage[]> {
     const gid = SHEET_GIDS[category];
 
     const res = await fetch(
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`,
     );
 
     if (!res.ok) throw new Error("Fetch failed");
@@ -125,8 +166,12 @@ export default function Gallery() {
       return;
     }
 
-    const exactMatch = SHEETS.find((cat) => cat.toLowerCase() === normalizedSearch) as Filter | undefined;
-    const partialMatch = SHEETS.find((cat) => cat.toLowerCase().includes(normalizedSearch)) as Filter | undefined;
+    const exactMatch = SHEETS.find((cat) => cat.toLowerCase() === normalizedSearch) as
+      | Filter
+      | undefined;
+    const partialMatch = SHEETS.find((cat) => cat.toLowerCase().includes(normalizedSearch)) as
+      | Filter
+      | undefined;
     const matchedTheme = exactMatch || partialMatch;
 
     if (matchedTheme) {
@@ -165,17 +210,40 @@ export default function Gallery() {
       (entries) => {
         if (entries[0].isIntersecting) loadMore();
       },
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
 
     io.observe(el);
     return () => io.disconnect();
   }, [loadMore]);
 
+  /* -------- LIGHTBOX KEYBOARD + SCROLL LOCK -------- */
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+      else if (e.key === "ArrowLeft") setLightbox((i) => (i ? i - 1 : 0));
+      else if (e.key === "ArrowRight")
+        setLightbox((i) => (i !== null && i < visibleItems.length - 1 ? i + 1 : i));
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [lightbox, visibleItems.length]);
+
   /* ---------------- UI ---------------- */
 
   return (
-    <section id="gallery" className="py-24 md:py-32 bg-gradient-to-b from-white to-cream relative overflow-hidden" aria-label="Gallery">
+    <section
+      id="gallery"
+      className="py-24 md:py-32 bg-gradient-to-b from-white to-cream relative overflow-hidden"
+      aria-label="Gallery"
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <p className="divider-ornament font-sans uppercase tracking-[0.3em] text-xs text-terracotta-dark mb-4 justify-center">
@@ -185,12 +253,15 @@ export default function Gallery() {
             Bridal & festive mehndi designs in Bangalore
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground">
-            Browse recent bridal, Arabic, traditional, and festive henna artwork created for weddings, engagements, and celebrations.
+            Browse recent bridal, Arabic, traditional, and festive henna artwork created for
+            weddings, engagements, and celebrations.
           </p>
         </div>
-
         {/* SEARCH */}
-        <form onSubmit={handleSearchSubmit} className="mx-auto mb-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-gray-300 bg-white px-4 py-3 shadow-sm">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="mx-auto mb-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-gray-300 bg-white px-4 py-3 shadow-sm"
+        >
           <Search size={18} className="text-gray-500" />
           <input
             value={searchTheme}
@@ -205,7 +276,6 @@ export default function Gallery() {
             Search
           </button>
         </form>
-
         {/* FILTERS */}
         <div className="flex flex-wrap gap-3 justify-center mb-10">
           {matchingThemes.length > 0 ? (
@@ -213,10 +283,9 @@ export default function Gallery() {
               <button
                 key={cat}
                 onClick={() => handleFilterChange(cat)}
-                className={`px-4 py-2 rounded-full capitalize ${filter === cat
-                  ? "bg-black text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-                  }`}
+                className={`px-4 py-2 rounded-full capitalize ${
+                  filter === cat ? "bg-black text-white" : "bg-gray-200 hover:bg-gray-300"
+                }`}
               >
                 {cat}
               </button>
@@ -225,7 +294,6 @@ export default function Gallery() {
             <p className="text-sm text-gray-500">No matching themes found</p>
           )}
         </div>
-
         {/* LOADING */}
         {loadingMap[filter] && visibleItems.length === 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -234,20 +302,29 @@ export default function Gallery() {
             ))}
           </div>
         )}
-
         {/* EMPTY STATE */}
         {!loadingMap[filter] && visibleItems.length === 0 && (
           <p className="text-center text-gray-500">No images found</p>
         )}
-
         {/* GRID */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {visibleItems.map((img, i) => (
             <img
               key={img.id}
-              src={img.url}
+              src={sized(img.url, 600)}
+              onError={fallBackToOriginal(img.url)}
+              alt={altFor(img.category, i + 1)}
               loading="lazy"
+              decoding="async"
+              role="button"
+              tabIndex={0}
               onClick={() => setLightbox(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setLightbox(i);
+                }
+              }}
               className="cursor-pointer rounded-lg object-cover aspect-[3/4]"
             />
           ))}
@@ -265,17 +342,12 @@ export default function Gallery() {
             </>
           )}
         </div>
-
         {/* SENTINEL */}
         {hasMore && <div ref={sentinelRef} className="h-10"></div>}
-
         {/* END MESSAGE */}
         {!hasMore && visibleItems.length > 0 && !loadingMap[filter] && (
-          <p className="text-center mt-10 text-gray-500">
-            You've reached the end
-          </p>
+          <p className="text-center mt-10 text-gray-500">You've reached the end</p>
         )}
-
         {/* LIGHTBOX */}
         {lightbox !== null && visibleItems[lightbox] && (
           <div
@@ -309,7 +381,10 @@ export default function Gallery() {
             )}
 
             <img
-              src={visibleItems[lightbox].url}
+              key={visibleItems[lightbox].url}
+              src={sized(visibleItems[lightbox].url, 1600)}
+              onError={fallBackToOriginal(visibleItems[lightbox].url)}
+              alt={altFor(visibleItems[lightbox].category, lightbox + 1)}
               className="relative z-10 max-h-[90vh] max-w-full rounded-lg object-contain"
               onClick={(e) => e.stopPropagation()}
             />
@@ -321,15 +396,15 @@ export default function Gallery() {
                 className="absolute right-3 sm:right-5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/70"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setLightbox((i) =>
-                    i !== null && i < visibleItems.length - 1 ? i + 1 : i
-                  );
+                  setLightbox((i) => (i !== null && i < visibleItems.length - 1 ? i + 1 : i));
                 }}
               >
                 <ChevronRight size={28} className="sm:w-10 sm:h-10" />
               </button>
             )}
           </div>
-        )}      </div>    </section>
+        )}{" "}
+      </div>{" "}
+    </section>
   );
 }
